@@ -110,6 +110,7 @@ def main(stdscr):
                         cell.east = 0
                         matrix[row_index][col_index + 1].west = 0
                     elif cell.visited is False:
+                        # random.seed(123347)
                         flip_coin = random.choice([0, 1])
                         if flip_coin == 0:
                             cell.north = 0
@@ -196,66 +197,66 @@ def main(stdscr):
                             stdscr.attron(curses.color_pair(1))
                             stdscr.addstr(y * 2, x * 3, n)
                             stdscr.attroff(curses.color_pair(1))
-                            stdscr.refresh()
-                            time.sleep(0.0008)
+                            # stdscr.refresh()
+                            # time.sleep(0.0008)
                         else:
                             n = "███"
                             stdscr.attron(curses.color_pair(1))
                             stdscr.addstr(y * 2, x * 3, n)
                             stdscr.attroff(curses.color_pair(1))
-                            stdscr.refresh()
-                            time.sleep(0.0008)
+                            # stdscr.refresh()
+                            # time.sleep(0.0008)
                     else:
                         stdscr.attron(curses.color_pair(1))
                         stdscr.addstr(y * 2, x * 3, "█  ")
                         stdscr.attroff(curses.color_pair(1))
-                        stdscr.refresh()
-                        time.sleep(0.0008)
+#                         stdscr.refresh()
+                        # time.sleep(0.0008)
                     if cell.west == 1:
                         stdscr.attron(curses.color_pair(1))
                         stdscr.addstr((y * 2) + 1, x * 3, "█")
                         stdscr.attroff(curses.color_pair(1))
-                        stdscr.refresh()
-                        time.sleep(0.0008)
+                        # stdscr.refresh()
+                        # time.sleep(0.0008)
                     else:
                         stdscr.attron(curses.color_pair(1))
                         stdscr.addstr((y * 2) + 1, x * 3, " ")
                         stdscr.attroff(curses.color_pair(1))
-                        stdscr.refresh()
-                        time.sleep(0.0008)
+                        # stdscr.refresh()
+                        # time.sleep(0.0008)
                     if cell.east == 1:
                         stdscr.attron(curses.color_pair(1))
                         stdscr.addstr((y * 2) + 1, (x * 3) + 3, "█")
                         stdscr.attroff(curses.color_pair(1))
-                        stdscr.refresh()
-                        time.sleep(0.0008)
+                        # stdscr.refresh()
+                        # time.sleep(0.0008)
                     else:
                         stdscr.attron(curses.color_pair(1))
                         stdscr.addstr((y * 2) + 1, (x * 3) + 3, " ")
                         stdscr.attroff(curses.color_pair(1))
-                        stdscr.refresh()
-                        time.sleep(0.0008)
+                        # stdscr.refresh()
+                        # time.sleep(0.0008)
                     if cell.south == 1:
                         if x == width - 1:
                             n = "████"
                             stdscr.attron(curses.color_pair(1))
                             stdscr.addstr((y * 2) + 2, x * 3, n)
                             stdscr.attroff(curses.color_pair(1))
-                            stdscr.refresh()
-                            time.sleep(0.0008)
+                            # stdscr.refresh()
+                            # time.sleep(0.0008)
                         else:
                             n = "███"
                             stdscr.attron(curses.color_pair(1))
                             stdscr.addstr((y * 2) + 2, x * 3, n)
                             stdscr.attroff(curses.color_pair(1))
-                            stdscr.refresh()
-                            time.sleep(0.0008)
+                            # stdscr.refresh()
+                            # time.sleep(0.0008)
                     else:
                         stdscr.attron(curses.color_pair(1))
                         stdscr.addstr((y * 2) + 2, x * 3, "█  █")
                         stdscr.attroff(curses.color_pair(1))
-                        stdscr.refresh()
-                        time.sleep(0.0008)
+                        # stdscr.refresh()
+                        # time.sleep(0.0008)
             for tuple in close:
                 y, x = tuple
                 stdscr.attron(curses.color_pair(7))
