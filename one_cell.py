@@ -29,56 +29,103 @@ def main(stdscr):
     curses.curs_set(0)
     curses.start_color()
     curses.use_default_colors()
-
+    
+    curses.init_color(9, 500, 500, 500)
+    curses.init_pair(7, 9, curses.COLOR_BLACK)
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
     curses.init_pair(2, curses.COLOR_MAGENTA, curses.COLOR_BLACK)  # start
     curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)      # goal
     curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)
-    # PALE_BLUE = 10
-    # curses.init_color(PALE_BLUE, 400, 400, 1000)
     curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_BLACK)
-
     curses.init_pair(6, curses.COLOR_BLACK, curses.COLOR_BLACK)
     # stdscr.nodelay(True)
     index: int = 0
-    width = 30
-    hight = 25
-    start = (4, 4)
-    exit = (20, 20)
+    width = 35
+    hight = 30
+    start = (5, 20)
+    exit = (24, 0)
+    x_s = int(width / 2) - int(7 / 2)
+    y_s = int(hight / 2) - int(5 / 2)
+    matrix = deque(
+        deque(Cell() for i in range(width))
+        for _ in range(hight)
+    )
+    close = [
+        (y_s, x_s), (y_s, x_s + 4), (y_s, x_s + 5), (y_s, x_s + 6),
+        (y_s + 1, x_s), (y_s + 1, x_s + 6), (y_s + 2, x_s), (y_s + 2, x_s + 1),
+        (y_s + 2, x_s +  2), (y_s + 2, x_s + 4), (y_s + 2, x_s + 5), (y_s + 2, x_s + 6),
+        (y_s + 3, x_s + 2), (y_s + 3, x_s + 4), (y_s + 4, x_s + 2), (y_s + 4, x_s + 4),
+        (y_s + 4, x_s + 5), (y_s + 4, x_s + 6)
+    ]
+    open_north = [
+        (y_s, x_s - 1), (y_s + 1, x_s - 1), (y_s + 2, x_s - 1),
+        (y_s, x_s + 3), (y_s + 4, x_s + 1), (y_s + 2, x_s + 3),
+        (y_s + 3, x_s + 3), (y_s + 4, x_s + 3), (y_s + 3, x_s - 1),
+        (y_s + 1, x_s + 3), (y_s + 5, x_s + 1)
+    ]
+    open_east = [
+        (y_s + 3, x_s), (y_s + 3, x_s + 5),  (y_s + 3, x_s + 6), (y_s + 5, x_s + 4),
+        (y_s + 5, x_s + 5), (y_s + 5, x_s + 6), (y_s + 5, x_s + 4),
+        (y_s + 1, x_s + 3), (y_s + 1, x_s + 4), (y_s + 5, x_s + 3),
+        (y_s + 4, x_s - 1), (y_s + 3, x_s - 1), (y_s + 5, x_s + 2)
+    ]
+    open_west = [
+        (y_s + 3, x_s + 1), (y_s + 1, x_s + 5)
+    ]
     while True:
         # try:
         key = stdscr.getkey()
         # except:
-        #     key = None
+        #     key = "1"
         matrix = deque(
                 deque(Cell() for i in range(width))
                 for _ in range(hight)
             )
         if key == "1":
             index = 0
+            for tuple in close:
+                y, x = tuple
+                matrix[y][x].visited = True
+            for tuple in open_north:
+                y, x = tuple
+                matrix[y][x].north = 0
+                matrix[y][x].visited = True
+                matrix[y - 1][x].south = 0
+            for tuple in open_east:
+                y, x = tuple
+                matrix[y][x].east = 0
+                matrix[y][x].visited = True
+                matrix[y][x + 1].west = 0
+            for tuple in open_west:
+                y, x = tuple
+                matrix[y][x].visited = True
             for row_index, row in enumerate(matrix):
                 for col_index, cell in enumerate(row):
-                    if row_index == 0 and col_index == width - 1:
+                    if row_index == 0 and col_index == width - 1 and cell.visited is False:
                         cell.last = 1
-                        # cell.visited = True
-                    elif col_index == width - 1:
+                    elif col_index == width - 1 and cell.visited is False:
                         cell.north = 0
                         matrix[row_index - 1][col_index].south = 0
-                        # cell.visited = True
-                    elif row_index == 0:
+                    elif row_index == 0 and cell.visited is False:
                         cell.east = 0
                         matrix[row_index][col_index + 1].west = 0
-                        # cell.visited = True
-                    else:
+                    elif cell.visited is False:
                         flip_coin = random.choice([0, 1])
                         if flip_coin == 0:
                             cell.north = 0
                             matrix[row_index - 1][col_index].south = 0
-                            # cell.visited = True
-                        else:
+                        elif flip_coin == 1:
                             cell.east = 0
                             matrix[row_index][col_index + 1].west = 0
-                            # cell.visited = True
+            for tuple in open_north:
+                y, x = tuple
+                matrix[y][x].visited = False
+            for tuple in open_east:
+                y, x = tuple
+                matrix[y][x].visited = False
+            for tuple in open_west:
+                y, x = tuple
+                matrix[y][x].visited = False
             temp = copy.deepcopy(matrix)
             temp2 = copy.deepcopy(matrix)
             mat2 = copy.deepcopy(matrix)
@@ -155,19 +202,25 @@ def main(stdscr):
                             stdscr.addstr(y * 2, x * 3, n)
                             stdscr.attroff(curses.color_pair(1))
                     else:
+                        stdscr.attron(curses.color_pair(1))
                         stdscr.addstr(y * 2, x * 3, "█  ")
+                        stdscr.attroff(curses.color_pair(1))
                     if cell.west == 1:
                         stdscr.attron(curses.color_pair(1))
                         stdscr.addstr((y * 2) + 1, x * 3, "█")
                         stdscr.attroff(curses.color_pair(1))
                     else:
+                        stdscr.attron(curses.color_pair(1))
                         stdscr.addstr((y * 2) + 1, x * 3, " ")
+                        stdscr.attroff(curses.color_pair(1))
                     if cell.east == 1:
                         stdscr.attron(curses.color_pair(1))
                         stdscr.addstr((y * 2) + 1, (x * 3) + 3, "█")
                         stdscr.attroff(curses.color_pair(1))
                     else:
+                        stdscr.attron(curses.color_pair(1))
                         stdscr.addstr((y * 2) + 1, (x * 3) + 3, " ")
+                        stdscr.attroff(curses.color_pair(1))
                     if cell.south == 1:
                         if x == width - 1:
                             n = "████"
@@ -180,7 +233,14 @@ def main(stdscr):
                             stdscr.addstr((y * 2) + 2, x * 3, n)
                             stdscr.attroff(curses.color_pair(1))
                     else:
+                        stdscr.attron(curses.color_pair(1))
                         stdscr.addstr((y * 2) + 2, x * 3, "█  █")
+                        stdscr.attroff(curses.color_pair(1))
+            for tuple in close:
+                y, x = tuple
+                stdscr.attron(curses.color_pair(7))
+                stdscr.addstr((y * 2) + 1, (x * 3) + 1, "██")
+                stdscr.attroff(curses.color_pair(7))
             y_e, x_e = exit
             y_s, x_s = start
             stdscr.attron(curses.color_pair(2))
@@ -209,19 +269,25 @@ def main(stdscr):
                                 stdscr.addstr(y * 2, x * 3, n)
                                 stdscr.attroff(curses.color_pair(1))
                         else:
+                            stdscr.attron(curses.color_pair(1))
                             stdscr.addstr(y * 2, x * 3, "█  ")
+                            stdscr.attroff(curses.color_pair(1))
                         if cell.west == 1:
                             stdscr.attron(curses.color_pair(1))
                             stdscr.addstr((y * 2) + 1, x * 3, "█")
                             stdscr.attroff(curses.color_pair(1))
                         else:
+                            stdscr.attron(curses.color_pair(1))
                             stdscr.addstr((y * 2) + 1, x * 3, " ")
+                            stdscr.attroff(curses.color_pair(1))
                         if cell.east == 1:
                             stdscr.attron(curses.color_pair(1))
                             stdscr.addstr((y * 2) + 1, (x * 3) + 3, "█")
                             stdscr.attroff(curses.color_pair(1))
                         else:
+                            stdscr.attron(curses.color_pair(1))
                             stdscr.addstr((y * 2) + 1, (x * 3) + 3, " ")
+                            stdscr.attroff(curses.color_pair(1))
                         if cell.south == 1:
                             if x == width - 1:
                                 n = "████"
@@ -234,7 +300,14 @@ def main(stdscr):
                                 stdscr.addstr((y * 2) + 2, x * 3, n)
                                 stdscr.attroff(curses.color_pair(1))
                         else:
+                            stdscr.attron(curses.color_pair(1))
                             stdscr.addstr((y * 2) + 2, x * 3, "█  █")
+                            stdscr.attroff(curses.color_pair(1))
+                for tuple in close:
+                    y, x = tuple
+                    stdscr.attron(curses.color_pair(7))
+                    stdscr.addstr((y * 2) + 1, (x * 3) + 1, "██")
+                    stdscr.attroff(curses.color_pair(7))
                 y_e, x_e = exit
                 y_s, x_s = start
                 stdscr.attron(curses.color_pair(2))
@@ -383,19 +456,25 @@ def main(stdscr):
                                 stdscr.addstr(y * 2, x * 3, n)
                                 stdscr.attroff(curses.color_pair(1))
                         else:
+                            stdscr.attron(curses.color_pair(1))
                             stdscr.addstr(y * 2, x * 3, "█  ")
+                            stdscr.attroff(curses.color_pair(1))
                         if cell.west == 1:
                             stdscr.attron(curses.color_pair(1))
                             stdscr.addstr((y * 2) + 1, x * 3, "█")
                             stdscr.attroff(curses.color_pair(1))
                         else:
+                            stdscr.attron(curses.color_pair(1))
                             stdscr.addstr((y * 2) + 1, x * 3, " ")
+                            stdscr.attroff(curses.color_pair(1))
                         if cell.east == 1:
                             stdscr.attron(curses.color_pair(1))
                             stdscr.addstr((y * 2) + 1, (x * 3) + 3, "█")
                             stdscr.attroff(curses.color_pair(1))
                         else:
+                            stdscr.attron(curses.color_pair(1))
                             stdscr.addstr((y * 2) + 1, (x * 3) + 3, " ")
+                            stdscr.attroff(curses.color_pair(1))
                         if cell.south == 1:
                             if x == width - 1:
                                 n = "████"
@@ -409,6 +488,13 @@ def main(stdscr):
                                 stdscr.attroff(curses.color_pair(1))
                         else:
                             stdscr.addstr((y * 2) + 2, x * 3, "█  █")
+                            stdscr.attroff(curses.color_pair(1))
+                            stdscr.attroff(curses.color_pair(1))
+                for tuple in close:
+                    y, x = tuple
+                    stdscr.attron(curses.color_pair(7))
+                    stdscr.addstr((y * 2) + 1, (x * 3) + 1, "██")
+                    stdscr.attroff(curses.color_pair(7))
                 y_s, x_s = start
                 y_e, x_e = exit
                 stdscr.attron(curses.color_pair(2))
@@ -489,6 +575,9 @@ def main(stdscr):
                     if mat2[y_s][x_s].east == 0 and mat2[y_s][x_s].distance - 1 == mat2[y_s][x_s + 1].distance:
                         x_s += 1
                         if x_s == x_e and y_s == y_e:
+                            stdscr.attron(curses.color_pair(5))
+                            stdscr.addstr((y_s * 2) + 1, (x_s * 3), "█")
+                            stdscr.attron(curses.color_pair(5))
                             break
                         # if matrix[y][x].east == 1 or matrix[y][x].distance - 1 != matrix[y][x + 1].distance:
                         #     stdscr.attron(curses.color_pair(2))
@@ -522,6 +611,9 @@ def main(stdscr):
                     if mat2[y_s][x_s].north == 0 and mat2[y_s][x_s].distance - 1 == mat2[y_s - 1][x_s].distance:
                         y_s -= 1
                         if x_s == x_e and y_s == y_e:
+                            stdscr.attron(curses.color_pair(5))
+                            stdscr.addstr((y_s  * 2) + 2, (x_s * 3) + 1, "██")
+                            stdscr.attroff(curses.color_pair(5))
                             break
                         stdscr.attron(curses.color_pair(5))
                         stdscr.addstr((y_s  * 2) + 2, (x_s * 3) + 1, "██")                    
